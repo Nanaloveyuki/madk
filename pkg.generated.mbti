@@ -1,0 +1,139 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Nanaloveyuki/madk"
+
+import {
+  "Nanaloveyuki/madk/transport",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub let accessory_adb_product_id : Int
+
+pub let accessory_audio_adb_product_id : Int
+
+pub let accessory_audio_product_id : Int
+
+pub let accessory_get_protocol : Int
+
+pub let accessory_product_id : Int
+
+pub let accessory_register_hid : Int
+
+pub let accessory_send_hid_event : Int
+
+pub let accessory_send_string : Int
+
+pub let accessory_set_audio_mode : Int
+
+pub let accessory_set_hid_report_desc : Int
+
+pub let accessory_start : Int
+
+pub let accessory_unregister_hid : Int
+
+pub let aoa_vendor_id : Int
+
+pub let audio_adb_product_id : Int
+
+pub let audio_product_id : Int
+
+pub let default_control_timeout_ms : Int
+
+pub let usb_vendor_device_in : Int
+
+pub let usb_vendor_device_out : Int
+
+// Errors
+pub(all) suberror AoaError {
+  InvalidState(String)
+  InvalidIdentityField(Int)
+  UnsupportedProtocol(Int)
+  DeviceNotInAccessoryMode(Int)
+  MissingBulkEndpoints
+  ShortTransfer(Int, Int)
+  UnsupportedFeature(AoaFeature)
+  InvalidHidId(Int)
+  HidAlreadyRegistered(Int)
+  UnknownHid(Int)
+  InvalidHidDescriptorLength(Int, Int)
+  HidDescriptorNotReady(Int)
+  Transport(@transport.TransportError)
+} derive(Eq, @debug.Debug)
+
+// Types and methods
+pub(all) enum AoaFeature {
+  Bulk
+  Hid
+  Audio
+} derive(Eq, @debug.Debug)
+
+pub struct AoaIdentity {
+  // private fields
+} derive(Eq, @debug.Debug)
+pub fn AoaIdentity::description(Self) -> String
+pub fn AoaIdentity::manufacturer(Self) -> String
+pub fn AoaIdentity::minimal(manufacturer~ : String, model~ : String, version~ : String) -> Self raise AoaError
+pub fn AoaIdentity::model(Self) -> String
+pub fn AoaIdentity::new(manufacturer~ : String, model~ : String, description~ : String, version~ : String, uri~ : String, serial~ : String) -> Self raise AoaError
+pub fn AoaIdentity::serial(Self) -> String
+pub fn AoaIdentity::uri(Self) -> String
+pub fn AoaIdentity::version(Self) -> String
+
+pub(all) enum AoaProtocolVersion {
+  V1
+  V2
+} derive(Eq, @debug.Debug)
+pub fn AoaProtocolVersion::wire_value(Self) -> Int
+
+pub struct AoaSession {
+  // private fields
+}
+pub fn AoaSession::audio_capability(Self) -> AudioCapability
+pub fn AoaSession::audio_is_active(Self) -> Bool
+pub fn AoaSession::audio_mode(Self) -> AudioMode
+pub fn AoaSession::close(Self) -> Unit raise AoaError
+pub fn AoaSession::configure(Self, AoaIdentity, audio_mode? : AudioMode) -> Unit raise AoaError
+pub fn AoaSession::device_info(Self) -> @transport.DeviceInfo
+pub fn AoaSession::new(&@transport.UsbTransport) -> Self raise AoaError
+pub fn AoaSession::probe(Self) -> AoaProtocolVersion raise AoaError
+pub fn AoaSession::protocol(Self) -> AoaProtocolVersion?
+pub fn AoaSession::read_bulk(Self, Int, Int) -> Bytes raise AoaError
+pub fn AoaSession::read_bulk_exact(Self, Int, Int) -> Bytes raise AoaError
+pub fn AoaSession::refresh_bulk_endpoints(Self) -> Unit raise AoaError
+pub fn AoaSession::register_hid(Self, identifier~ : Int, descriptor_length~ : Int) -> HidDevice raise AoaError
+pub fn AoaSession::send_hid_event(Self, HidDevice, Bytes) -> Unit raise AoaError
+pub fn AoaSession::send_hid_report_descriptor(Self, HidDevice, Bytes, packet_size? : Int) -> Unit raise AoaError
+pub fn AoaSession::set_audio_mode(Self, AudioMode) -> Unit raise AoaError
+pub fn AoaSession::start(Self) -> Unit raise AoaError
+pub fn AoaSession::state(Self) -> AoaState
+pub fn AoaSession::supports(Self, AoaFeature) -> Bool
+pub fn AoaSession::unregister_hid(Self, HidDevice) -> Unit raise AoaError
+pub fn AoaSession::write_bulk(Self, Bytes, Int) -> Unit raise AoaError
+
+pub(all) enum AoaState {
+  Detected
+  Probed(AoaProtocolVersion)
+  Configured
+  Started
+  BulkReady
+  Closed
+} derive(Eq, @debug.Debug)
+
+pub(all) enum AudioCapability {
+  Unsupported
+  Pcm44100Stereo
+} derive(Eq, @debug.Debug)
+
+pub(all) enum AudioMode {
+  Disabled
+  Pcm44100Stereo
+} derive(Eq, @debug.Debug)
+
+pub struct HidDevice {
+  // private fields
+} derive(Eq, @debug.Debug)
+pub fn HidDevice::identifier(Self) -> Int
+
+// Type aliases
+
+// Traits

@@ -1,0 +1,5 @@
+import {
+  "Nanaloveyuki/madk",
+  "Nanaloveyuki/madk/sim",
+  "Nanaloveyuki/madk/transport",
+} for "test"

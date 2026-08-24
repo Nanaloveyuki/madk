@@ -1,0 +1,57 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Nanaloveyuki/madk/transport"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+
+// Errors
+pub(all) suberror TransportError {
+  InvalidDeviceInfo(String)
+  InvalidControlRequest(String)
+  InvalidEndpoint(Int)
+  InvalidLength(Int)
+  Timeout
+  Disconnected
+  Closed
+  ShortTransfer(Int, Int)
+  UnsupportedRequest(Int)
+  Failure(String)
+} derive(Eq, @debug.Debug)
+
+// Types and methods
+pub struct ControlTransfer {
+  // private fields
+} derive(Eq, @debug.Debug)
+pub fn ControlTransfer::data(Self) -> Bytes
+pub fn ControlTransfer::in_request(request_type~ : Int, request~ : Int, value~ : Int, index~ : Int, length~ : Int) -> Self raise TransportError
+pub fn ControlTransfer::index(Self) -> Int
+pub fn ControlTransfer::is_in(Self) -> Bool
+pub fn ControlTransfer::length(Self) -> Int
+pub fn ControlTransfer::out_request(request_type~ : Int, request~ : Int, value~ : Int, index~ : Int, data~ : Bytes) -> Self raise TransportError
+pub fn ControlTransfer::request(Self) -> Int
+pub fn ControlTransfer::request_type(Self) -> Int
+pub fn ControlTransfer::value(Self) -> Int
+
+pub struct DeviceInfo {
+  // private fields
+} derive(Eq, @debug.Debug)
+pub fn DeviceInfo::bulk_in_endpoint(Self) -> Int?
+pub fn DeviceInfo::bulk_out_endpoint(Self) -> Int?
+pub fn DeviceInfo::has_bulk_endpoints(Self) -> Bool
+pub fn DeviceInfo::new(vendor_id~ : Int, product_id~ : Int, bulk_in_endpoint~ : Int?, bulk_out_endpoint~ : Int?) -> Self raise TransportError
+pub fn DeviceInfo::product_id(Self) -> Int
+pub fn DeviceInfo::vendor_id(Self) -> Int
+
+// Type aliases
+
+// Traits
+pub(open) trait UsbTransport {
+  fn info(Self) -> DeviceInfo raise TransportError
+  fn control(Self, ControlTransfer, Int) -> Bytes raise TransportError
+  fn bulk_write(Self, Int, Bytes, Int) -> Int raise TransportError
+  fn bulk_read(Self, Int, Int, Int) -> Bytes raise TransportError
+  fn close(Self) -> Unit raise TransportError
+}

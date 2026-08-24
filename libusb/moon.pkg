@@ -1,0 +1,10 @@
+import {
+  "moonbitlang/core/encoding/utf8",
+  "Nanaloveyuki/madk/transport",
+}
+
+supported_targets = "native"
+
+options(
+  "native-stub": [ "libusb.c" ],
+)
