@@ -1,0 +1,34 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Nanaloveyuki/madk/libusb"
+
+import {
+  "Nanaloveyuki/madk/transport",
+  "moonbitlang/core/debug",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct LibusbDeviceSelector {
+  // private fields
+} derive(Eq, @debug.Debug)
+pub fn LibusbDeviceSelector::accessory() -> Self
+pub fn LibusbDeviceSelector::is_accessory_mode(Self) -> Bool
+pub fn LibusbDeviceSelector::new(vendor_id~ : Int, product_id~ : Int) -> Self raise @transport.TransportError
+pub fn LibusbDeviceSelector::product_id(Self) -> Int?
+pub fn LibusbDeviceSelector::vendor_id(Self) -> Int
+
+pub struct LibusbTransport {
+  // private fields
+}
+pub fn LibusbTransport::open(LibusbDeviceSelector) -> Self raise @transport.TransportError
+pub fn LibusbTransport::refresh(Self) -> Unit raise @transport.TransportError
+pub fn LibusbTransport::runtime_available() -> Bool
+pub fn LibusbTransport::runtime_diagnostic() -> String
+pub impl @transport.UsbTransport for LibusbTransport
+
+// Type aliases
+
+// Traits

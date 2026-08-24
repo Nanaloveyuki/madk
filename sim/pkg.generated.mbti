@@ -1,0 +1,40 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Nanaloveyuki/madk/sim"
+
+import {
+  "Nanaloveyuki/madk",
+  "Nanaloveyuki/madk/transport",
+  "moonbitlang/core/debug",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) enum FakeFault {
+  Timeout
+  Disconnected
+  ShortWrite(Int)
+  ShortRead(Int)
+} derive(Eq, @debug.Debug)
+
+pub struct FakeTransport {
+  // private fields
+}
+pub fn FakeTransport::bulk_writes(Self) -> Array[Bytes]
+pub fn FakeTransport::control_log(Self) -> Array[@transport.ControlTransfer]
+pub fn FakeTransport::disconnect(Self) -> Unit
+pub fn FakeTransport::hid_descriptor_chunks(Self, Int) -> Array[Bytes]
+pub fn FakeTransport::hid_events(Self, Int) -> Array[Bytes]
+pub fn FakeTransport::is_closed(Self) -> Bool
+pub fn FakeTransport::new(protocol~ : @madk.AoaProtocolVersion) -> Self
+pub fn FakeTransport::new_already_accessory() -> Self
+pub fn FakeTransport::new_control_only(protocol~ : @madk.AoaProtocolVersion) -> Self
+pub fn FakeTransport::queue_bulk_read(Self, Bytes) -> Unit
+pub fn FakeTransport::set_next_fault(Self, FakeFault) -> Unit
+pub impl @transport.UsbTransport for FakeTransport
+
+// Type aliases
+
+// Traits
