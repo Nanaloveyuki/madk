@@ -1,0 +1,27 @@
+* text=auto eol=lf
+
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+*.7z binary
+*.aar binary
+*.apk binary
+*.dll binary
+*.exe binary
+*.gif binary
+*.gz binary
+*.ico binary
+*.jar binary
+*.jpeg binary
+*.jpg binary
+*.lib binary
+*.pdf binary
+*.png binary
+*.so binary
+*.tar binary
+*.ttf binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.zip binary
+*.zst binary

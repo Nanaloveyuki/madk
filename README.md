@@ -1,52 +1,91 @@
 # madk
 
-`madk` is a MoonBit implementation of the Android Open Accessory (AOA)
-protocol for accessory-side USB hosts.
+`madk` is a MoonBit toolkit for hosts that communicate with Android devices
+through the Android Open Accessory (AOA) protocol.
 
-The project is intentionally split into a portable protocol core and optional
-transport adapters:
+The project keeps the protocol state machine independent from USB and platform
+details. Native USB access is provided by an optional libusb adapter; a
+simulator is available for deterministic tests.
 
-- `aoa` contains the protocol state machine and public protocol types;
-- `transport` defines the USB host/device boundary;
-- `sim` provides deterministic protocol simulation and failure injection;
-- `libusb` provides the first native USB backend;
-- `examples/android` is a small Android application for phone-based testing.
+## Status
 
-The Android Open Accessory protocol is not the Android USB host API. An
-accessory is the USB host, while the Android device enters accessory mode.
-The protocol starts with device detection and negotiation, followed by
-identity strings, accessory-mode startup, and bulk endpoint communication.
+madk is pre-1.0 software. Public MoonBit APIs, the WIT contract, and transport
+adapter behavior may change between releases.
 
-## Current scope
+## What it provides
 
-- AOAv1 generic accessory communication;
-- AOAv2 HID registration, report descriptors, and input events;
-- AOAv2 audio-mode negotiation with explicit unsupported-feature handling;
-- native libusb transport on supported desktop hosts;
-- a deterministic simulator for tests without USB hardware;
-- a WIT contract for a future WASI host implementation.
+- AOA v1 accessory negotiation and bulk transport;
+- AOAv2 HID registration, descriptor transfer, and input events;
+- AOAv2 audio-mode negotiation with explicit capability errors;
+- transport interfaces for control and bulk transfers;
+- a deterministic simulator with failure injection;
+- a native libusb transport with runtime diagnostics;
+- an Android fixture application for physical AOA acceptance tests;
+- a WIT host-capability contract for a future WASI integration.
+
+## Package layout
+
+| Path | Purpose |
+| --- | --- |
+| `protocol.mbt`, `session.mbt` | portable AOA protocol state machine |
+| `transport/` | transport interfaces and shared transfer types |
+| `sim/` | deterministic simulator and tests |
+| `libusb/` | native libusb adapter |
+| `wit/` | WASI host capability contract |
+| `examples/android/` | Android-side test fixture |
+| `docs/` | protocol and integration-boundary notes |
+
+## WASI boundary
 
 WASI is an integration boundary, not a USB driver. A WASI component cannot
-access Android USB APIs or libusb without a host-provided capability. The WIT
-file in this repository defines that boundary but does not select or embed a
-WASI runtime yet.
+access Android USB APIs or libusb directly. The host must provide a capability
+for device selection, control transfers, bulk transfers, timeouts, disconnects,
+and cleanup.
 
-## Development
+The current WIT file defines that host contract but does not embed a WASI
+runtime or provide a complete WASI adapter. See [`docs/wasi.md`](docs/wasi.md).
 
-The portable packages can be checked and tested without a connected Android
-device:
+## Requirements
 
-```text
+- MoonBit compiler `0.10.9`, selected by [`.moon-version`](.moon-version);
+- a native C toolchain for native builds;
+- libusb 1.0 runtime and host USB permissions for physical native USB tests;
+- JDK 17, Android SDK, and Gradle 9.6.1 for the Android fixture.
+
+The repository pins the MoonBit compiler because MoonBit is still evolving and
+compiler/API changes must be deliberate. Do not replace the version with the
+`latest` channel in local or CI setup.
+
+## Build and test
+
+The portable core and simulator do not require an Android device:
+
+```sh
 moon fmt --check
 moon check --target native --deny-warn
 moon test --target native --deny-warn
+moon check --target all --deny-warn
 ```
 
-The libusb backend requires a development installation of libusb 1.0. The
-Android fixture requires Android SDK and Gradle. A real phone is required for
-AOA handshake, bulk, and HID acceptance tests; simulator tests do not require
-hardware.
+Build the Android fixture with:
+
+```sh
+cd examples/android
+gradle :app:assembleDebug --no-daemon
+```
+
+The Android application does not perform the AOA handshake. A host must
+negotiate AOA, start accessory mode, handle USB re-enumeration, and then use
+the fixture's length-prefixed test frames. Physical Windows tests may require
+WinUSB on the Android Accessory interface and may require stopping a conflicting
+ADB service before opening the composite device with libusb.
+
+## Documentation
+
+- [AOA design and protocol behavior](docs/aoa.md)
+- [WASI boundary](docs/wasi.md)
+- [Contributor guide](CONTRIBUTING.md)
 
 ## License
 
-`madk` is distributed under the MIT License. See [LICENSE](LICENSE).
+madk is distributed under the [MIT License](LICENSE).
