@@ -379,7 +379,7 @@ static int madk_is_accessory_product(int32_t product_id) {
 
 static int madk_matches(
     madk_libusb_handle *handle, const madk_libusb_device_descriptor *descriptor) {
-  if (handle->accessory_mode) {
+  if (handle->accessory_mode || handle->waiting_for_accessory) {
     return descriptor->idVendor == MADK_AOA_VENDOR_ID &&
            madk_is_accessory_product(descriptor->idProduct);
   }
