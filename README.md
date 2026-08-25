@@ -47,14 +47,15 @@ runtime or provide a complete WASI adapter. See [`docs/wasi.md`](docs/wasi.md).
 
 ## Requirements
 
-- MoonBit compiler `0.10.9`, selected by [`.moon-version`](.moon-version);
+- MoonBit compiler release `0.10.9+6e6c44045`, selected by [`.moon-version`](.moon-version);
 - a native C toolchain for native builds;
 - libusb 1.0 runtime and host USB permissions for physical native USB tests;
 - JDK 17, Android SDK, and Gradle 9.6.1 for the Android fixture.
 
-The repository pins the MoonBit compiler because MoonBit is still evolving and
-compiler/API changes must be deliberate. Do not replace the version with the
-`latest` channel in local or CI setup.
+The pinned release bundles MoonBit compiler `moonc 0.10.9+6e6c44045`. The
+repository pins the exact release identifier because MoonBit is still evolving
+and compiler/API changes must be deliberate. Do not replace the version with
+the `latest` channel in local or CI setup.
 
 ## Build and test
 

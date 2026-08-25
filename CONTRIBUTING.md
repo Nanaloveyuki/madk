@@ -6,7 +6,7 @@ belongs in [README.md](README.md) and the focused documents under `docs/`.
 
 ## Development environment
 
-- MoonBit compiler `0.10.9`, selected by [`.moon-version`](.moon-version);
+- MoonBit compiler release `0.10.9+6e6c44045`, selected by [`.moon-version`](.moon-version);
 - a native C toolchain for the `native` target;
 - Git and a working network connection for MoonBit dependencies;
 - JDK 17, Android SDK, and Gradle 9.6.1 for the Android fixture;
@@ -18,9 +18,11 @@ Check the selected toolchain before debugging a compiler or API issue:
 moon version --all
 ```
 
-The `moonc` line should report `0.10.9`. Do not silently switch the repository
-back to the `latest` channel to work around a failure. Record a deliberate
-toolchain upgrade as a separate change.
+The toolchain release should be `0.10.9+6e6c44045`, and its `moonc` line should
+report the same exact version. The build identifier is part of the published
+MoonBit installer artifact. Do not silently switch the repository back to the
+`latest` channel to work around a failure. Record a deliberate toolchain
+upgrade as a separate change.
 
 ## Repository boundaries
 
