@@ -2,4 +2,6 @@ import {
   "Nanaloveyuki/madk",
   "Nanaloveyuki/madk/sim",
   "Nanaloveyuki/madk/transport",
+  "moonbitlang/core/encoding/utf8",
+  "moonbitlang/core/quickcheck",
 } for "test"
