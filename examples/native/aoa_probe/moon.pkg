@@ -1,0 +1,15 @@
+import {
+  "Nanaloveyuki/madk",
+  "Nanaloveyuki/madk/libusb",
+  "Nanaloveyuki/madk/transport",
+  "moonbitlang/core/abort",
+  "moonbitlang/core/argparse",
+  "moonbitlang/core/buffer",
+  "moonbitlang/core/env",
+  "moonbitlang/core/encoding/utf8",
+  "moonbitlang/core/string",
+}
+
+supported_targets = "native"
+
+pkgtype(kind: "executable")

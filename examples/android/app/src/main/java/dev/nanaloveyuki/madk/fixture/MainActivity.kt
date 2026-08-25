@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.os.ParcelFileDescriptor
+import android.util.Log
 import android.view.WindowInsets
 import android.view.ViewGroup
 import android.widget.Button
@@ -47,9 +48,11 @@ class MainActivity : Activity() {
       if (intent.action != ACTION_USB_PERMISSION) return
       val accessory = accessoryFrom(intent) ?: return
       permissionGranted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
+      Log.i(TAG, "USB accessory permission granted=$permissionGranted")
       if (permissionGranted) {
         openAccessory(accessory)
       } else {
+        Log.w(TAG, "USB accessory permission denied")
         setStatus("Permission denied for accessory")
       }
     }
@@ -59,9 +62,11 @@ class MainActivity : Activity() {
     override fun onReceive(context: Context, intent: Intent) {
       when (intent.action) {
         UsbManager.ACTION_USB_ACCESSORY_ATTACHED -> {
+          Log.i(TAG, "USB accessory attached")
           accessoryFrom(intent)?.let { requestPermission(it) }
         }
         UsbManager.ACTION_USB_ACCESSORY_DETACHED -> {
+          Log.i(TAG, "USB accessory detached")
           val detached = accessoryFrom(intent)
           if (detached == null || detached == connectedAccessory) {
             closeAccessory("Accessory detached")
@@ -73,6 +78,7 @@ class MainActivity : Activity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    Log.i(TAG, "Activity created")
     usbManager = getSystemService(USB_SERVICE) as UsbManager
     ioExecutor = Executors.newSingleThreadExecutor()
     setContentView(createContent())
@@ -163,13 +169,16 @@ class MainActivity : Activity() {
 
   private fun handleIntent(intent: Intent?) {
     if (intent?.action == UsbManager.ACTION_USB_ACCESSORY_ATTACHED) {
+      Log.i(TAG, "Handling accessory attach intent")
       accessoryFrom(intent)?.let { requestPermission(it) }
     }
   }
 
   private fun requestPermission(accessory: UsbAccessory) {
+    Log.i(TAG, "Requesting USB accessory permission")
     if (usbManager.hasPermission(accessory)) {
       permissionGranted = true
+      Log.i(TAG, "USB accessory permission already granted")
       openAccessory(accessory)
       return
     }
@@ -180,19 +189,23 @@ class MainActivity : Activity() {
       Intent(ACTION_USB_PERMISSION).setPackage(packageName),
       PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
     )
+    Log.i(TAG, "USB accessory permission request sent")
     usbManager.requestPermission(accessory, permissionIntent)
     setStatus("Waiting for USB accessory permission")
   }
 
   private fun openAccessory(accessory: UsbAccessory) {
+    Log.i(TAG, "Opening USB accessory")
     closeAccessory("Opening accessory")
     val opened = usbManager.openAccessory(accessory)
     if (opened == null) {
+      Log.e(TAG, "UsbManager.openAccessory returned null")
       setStatus("UsbManager.openAccessory returned null")
       return
     }
     descriptor = opened
     connectedAccessory = accessory
+    Log.i(TAG, "USB accessory opened; starting frame reader")
     setStatus("Connected; AOA protocol is host-negotiated")
     ioExecutor.execute { readFrames(opened) }
   }
@@ -214,9 +227,10 @@ class MainActivity : Activity() {
       )
       streamOutput = outputStream
       output = outputStream
+      Log.i(TAG, "Accessory frame stream opened")
       while (!Thread.currentThread().isInterrupted) {
         val length = inputStream.readInt()
-        if (length < 0 || length > MAX_FRAME_BYTES) {
+        if (length <= 0 || length > MAX_FRAME_BYTES) {
           throw IllegalArgumentException("invalid frame length: $length")
         }
         val body = ByteArray(length)
@@ -224,6 +238,7 @@ class MainActivity : Activity() {
         rxBytes.addAndGet(length.toLong() + 4)
         rxFrames.incrementAndGet()
         val text = String(body, StandardCharsets.UTF_8)
+        Log.d(TAG, "Received frame length=$length text=$text")
         val response = if (text == "status") {
           "status:connected;protocol=host-negotiated"
         } else {
@@ -233,8 +248,10 @@ class MainActivity : Activity() {
         refreshStatus()
       }
     } catch (_: EOFException) {
+      Log.i(TAG, "Accessory stream closed")
       setStatus("Accessory stream closed")
     } catch (error: Exception) {
+      Log.e(TAG, "Accessory I/O stopped", error)
       setStatus("Accessory I/O stopped: ${error.message ?: error.javaClass.simpleName}")
     } finally {
       output = null
@@ -260,6 +277,7 @@ class MainActivity : Activity() {
     val bytes = text.toByteArray(StandardCharsets.UTF_8)
     val stream = output
     if (stream == null) {
+      Log.w(TAG, "Cannot send frame while accessory is disconnected")
       setStatus("Not connected to an Android accessory")
       return
     }
@@ -268,6 +286,7 @@ class MainActivity : Activity() {
         writeFrame(stream, bytes)
         setStatus("Sent $text frame")
       } catch (error: Exception) {
+        Log.e(TAG, "Accessory frame write failed", error)
         setStatus("Write failed: ${error.message ?: error.javaClass.simpleName}")
       }
     }
@@ -281,9 +300,11 @@ class MainActivity : Activity() {
     }
     txBytes.addAndGet(body.size.toLong() + 4)
     txFrames.incrementAndGet()
+    Log.d(TAG, "Sent frame length=" + body.size)
   }
 
   private fun closeAccessory(reason: String) {
+    Log.i(TAG, "Closing accessory: $reason")
     output = null
     connectedAccessory = null
     try {
@@ -327,7 +348,18 @@ class MainActivity : Activity() {
     }
   }
 
+  override fun onStart() {
+    super.onStart()
+    Log.i(TAG, "Activity started")
+  }
+
+  override fun onStop() {
+    Log.i(TAG, "Activity stopped")
+    super.onStop()
+  }
+
   override fun onDestroy() {
+    Log.i(TAG, "Activity destroyed")
     closeAccessory("Activity destroyed")
     ioExecutor.shutdownNow()
     unregisterReceiver(permissionReceiver)
@@ -336,6 +368,7 @@ class MainActivity : Activity() {
   }
 
   companion object {
+    private const val TAG = "madk-fixture"
     private const val ACTION_USB_PERMISSION = "dev.nanaloveyuki.madk.fixture.USB_PERMISSION"
     private const val MAX_FRAME_BYTES = 64 * 1024
   }
