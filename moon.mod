@@ -8,6 +8,8 @@ repository = "https://github.com/Nanaloveyuki/madk"
 
 license = "MIT"
 
+readme = "README.md"
+
 keywords = [ "moonbit", "android", "usb", "aoa", "accessory" ]
 
 preferred_target = "native"
