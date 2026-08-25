@@ -10,7 +10,8 @@ belongs in [README.md](README.md) and the focused documents under `docs/`.
 - a native C toolchain for the `native` target;
 - Git and a working network connection for MoonBit dependencies;
 - JDK 17, Android SDK, and Gradle 9.6.1 for the Android fixture;
-- libusb 1.0 and a host USB permission/driver setup for physical tests.
+- libusb 1.0 and a host USB permission/driver setup for physical tests;
+- `adb` from Android SDK platform-tools for wireless fixture deployment.
 
 Check the selected toolchain before debugging a compiler or API issue:
 
@@ -32,6 +33,7 @@ upgrade as a separate change.
 | `transport/` | USB control and bulk transfer abstractions |
 | `sim/` | deterministic simulator and failure injection for tests |
 | `libusb/` | native libusb adapter and runtime diagnostics |
+| `examples/native/aoa_probe/` | native probe and physical AOA smoke checks |
 | `wit/` | host capability contract for a future WASI integration |
 | `examples/android/` | Android-side fixture for physical AOA acceptance tests |
 | `docs/` | protocol, WASI-boundary, and maintainer-facing documentation |
@@ -49,6 +51,8 @@ moon fmt --check
 moon check --target native --deny-warn
 moon test --target native --deny-warn
 moon check --target all --deny-warn
+moon check examples/native/aoa_probe --target native --deny-warn
+moon run examples/native/aoa_probe --target native -- --help
 ```
 
 For the Android fixture:
@@ -71,6 +75,26 @@ The Android fixture does not perform the AOA handshake. A host test must:
 2. negotiate the AOA protocol and send the accessory identity;
 3. start accessory mode and handle USB re-enumeration;
 4. verify bulk traffic, then close the session cleanly.
+
+The wireless deployment script is useful for checking the Android side before
+connecting the USB data path:
+
+```powershell
+./examples/android/deploy-wireless.ps1 -Device "<device-ip>:<debug-port>" -Build -ClearLog -DumpLog
+```
+
+Wireless ADB validates APK installation, Activity lifecycle, permission handling,
+and `madk-fixture` logcat output. It cannot validate AOA negotiation or native
+bulk transfers. For the physical path, run the probe with the normal device
+IDs:
+
+```sh
+moon run examples/native/aoa_probe --target native -- --vid 0x18d1 --pid <normal-pid>
+```
+
+Use `--accessory` only when the phone has already been switched to AOA mode by
+another host process. The probe checks the fixture `status` response and the
+length-prefixed echo response before reporting success.
 
 On Windows, bind WinUSB only to the Android Accessory interface. Keep the ADB
 interface on its existing driver. A running ADB service can hold a composite

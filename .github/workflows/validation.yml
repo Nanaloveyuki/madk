@@ -43,6 +43,10 @@ jobs:
       - run: moon check --target native --deny-warn
       - run: moon test --target native --deny-warn
       - run: moon check --target all --deny-warn
+      - name: Check native AOA probe
+        run: moon check examples/native/aoa_probe --target native --deny-warn
+      - name: Run native AOA probe CLI smoke test
+        run: moon run examples/native/aoa_probe --target native -- --help
 
   android-build:
     runs-on: ubuntu-24.04
